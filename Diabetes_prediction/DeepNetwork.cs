@@ -13,12 +13,12 @@ namespace Diabetes_prediction
         readonly int[] layers = new int[] 
         { 
             DataSet.InputSize, 
-            10, 10, 10, 10, 10, 10, 10, 10, 10, 
+            10, 10, 10,
             DataSet.OutputSize 
         };
 
-        const int batchSize = 50;
-        const int epochCount = 100;
+        const int batchSize = 30;
+        const int epochCount = 300;
 
         readonly Variable x;
         readonly Function y;
@@ -31,8 +31,17 @@ namespace Diabetes_prediction
             Function lastLayer = x;
             for (int i = 0; i < layers.Length - 1; i++)
             {
-                Parameter weight = new Parameter(new int[] { layers[i + 1], layers[i] }, DataType.Float, CNTKLib.GlorotNormalInitializer());
-                Parameter bias = new Parameter(new int[] { layers[i + 1] }, DataType.Float, CNTKLib.GlorotNormalInitializer());
+                Parameter weight = new Parameter(
+                    new int[] { layers[i + 1], layers[i] }, 
+                    DataType.Float, 
+                    CNTKLib.GlorotNormalInitializer()
+                );
+
+                Parameter bias = new Parameter(
+                    new int[] { layers[i + 1] }, 
+                    DataType.Float, 
+                    CNTKLib.GlorotNormalInitializer()
+                );
 
                 Function times = CNTKLib.Times(weight, lastLayer);
                 Function plus = CNTKLib.Plus(times, bias);
@@ -58,20 +67,24 @@ namespace Diabetes_prediction
             Function y_rounded = CNTKLib.Round(y);
             Function y_yt_equal = CNTKLib.Equal(y_rounded, yt);
 
-            Learner learner = CNTKLib.SGDLearner(new ParameterVector(y.Parameters().ToArray()), new TrainingParameterScheduleDouble(1.0, batchSize));
-            Trainer trainer = Trainer.CreateTrainer(y, loss, y_yt_equal, new List<Learner>() { learner });
+            Learner learner = CNTKLib.SGDLearner(
+                new ParameterVector(y.Parameters().ToArray()), new TrainingParameterScheduleDouble(1.0, batchSize));
+
+            Trainer trainer = Trainer.CreateTrainer(
+                y, loss, y_yt_equal, new List<Learner>() { learner });
 
             // Train
+            ds.Shuffle();
             for (int epochI = 0; epochI <= epochCount; epochI++)
             {
                 double sumLoss = 0;
                 double sumEval = 0;
 
-                //ds.Shuffle();
+                ds.Shuffle();
                 for (int batchI = 0; batchI < ds.Count / batchSize; batchI++)
                 {
-                    Value x_value = Value.CreateBatch(x.Shape, ds.Input.GetRange(batchI * batchSize * DataSet.InputSize, batchSize * DataSet.InputSize), DeviceDescriptor.CPUDevice);
-                    Value yt_value = Value.CreateBatch(yt.Shape, ds.Output.GetRange(batchI * batchSize * DataSet.OutputSize, batchSize * DataSet.OutputSize), DeviceDescriptor.CPUDevice);
+                    Value x_value = Value.CreateBatch(x.Shape, ds.Input.GetRange(batchI * batchSize * DataSet.InputSize, batchSize * DataSet.InputSize),DeviceDescriptor.CPUDevice);                
+                    Value yt_value = Value.CreateBatch(yt.Shape, ds.Output.GetRange(batchI * batchSize * DataSet.OutputSize, batchSize * DataSet.OutputSize), DeviceDescriptor.CPUDevice);                    
                     var inputDataMap = new Dictionary<Variable, Value>()
                     {
                         { x, x_value },

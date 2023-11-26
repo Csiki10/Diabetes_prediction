@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace Diabetes_prediction
 {
     public class DataSet
     {
-        public const int InputSize = 9;
+        public const int InputSize = 8;
         public List<float> Input { get; set; } = new List<float>();
 
         public const int OutputSize = 1;
@@ -26,7 +27,11 @@ namespace Diabetes_prediction
             Count = 0;
             foreach (String line in File.ReadAllLines(filename))
             {
-                var floats = Normalize(line.Split('\t').Select(x => float.Parse(x)).ToList());
+                var floats = Normalize(line
+                    .Split(';')
+                    .Select(x => float.Parse(x))
+                    .ToList());
+
                 Input.AddRange(floats.GetRange(0, InputSize));
                 Output.Add(floats[InputSize]);
                 Count++;
@@ -70,7 +75,7 @@ namespace Diabetes_prediction
             foreach (String line in File.ReadAllLines(filename))
             {
                 var floats = line
-                    .Split('\t')
+                    .Split(';')
                     .Select(x => float.Parse(x))
                     .ToList();
 

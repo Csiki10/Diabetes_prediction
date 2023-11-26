@@ -3,11 +3,13 @@ public class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("ads");
+        Console.WriteLine("Deeplearning 1 - Diabetes");
+        Console.WriteLine("by: CSIKÓS BENEDEK - FTEPXW");
+        Console.WriteLine("");
 
-        DataSet.LoadMinMax("diabetes.txt");
-        DataSet trainDS = new DataSet("diabetes.txt");
-        DataSet testDS = new DataSet("diabetes-test.txt");
+        DataSet.LoadMinMax("d2.txt");
+        DataSet trainDS = new DataSet("d2.txt");
+        DataSet testDS = new DataSet("d1-test.txt");
 
         DeepNetwork app = new DeepNetwork();
         app.Train(trainDS);
@@ -17,5 +19,6 @@ public class Program
 
         Console.WriteLine("Eval train:" + app.Evaluate(trainDS));
         Console.WriteLine("Eval test:" + app.Evaluate(testDS));
+        ;
     }
 }
